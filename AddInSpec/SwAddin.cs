@@ -1,9 +1,9 @@
 ﻿using SolidWorks.Interop.sldworks;
+using SolidWorks.Interop.swconst;
 using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
-
 
 namespace AddInSpec
 {
@@ -11,10 +11,10 @@ namespace AddInSpec
     [Guid("4A222941-CF4C-4A29-AB2F-C1B89D611249")]
     [DisplayName("OpenCAD")]
     [Description("Automate your work in SOLIDWORKS!")]
-
     public class SwAddin : SolidWorks.Interop.swpublished.SwAddin
     {
-        public SldWorks SwApp { get; private set; }
+        //public SldWorks SwApp { get; private set; }
+        private ISldWorks _iSwApp;
 
         private int _addinId;
 
@@ -97,23 +97,29 @@ namespace AddInSpec
         }
 
         #endregion
+
         public bool ConnectToSW(object thisSw, int cookie)
         {
-            SwApp = thisSw as SldWorks;
+            _iSwApp = (ISldWorks)thisSw;
 
             _addinId = cookie;
 
-            if (SwApp == null) return false;
+            //Set up callbacks
+            var status = _iSwApp.SetAddinCallbackInfo2(0, this, cookie);
 
-            SwAppService.Initialize(SwApp);
+            SwAppService.Initialize(_iSwApp);
+            
+            var c = new string[1];
+            _iSwApp.AddMenu((int)swDocumentTypes_e.swDocASSEMBLY, "Специфікація", 0);
+            _iSwApp.AddMenuItem5((int)swDocumentTypes_e.swDocASSEMBLY, cookie, "Вивантажити дані@Специфікація", 0, "MyMenuCallback", "MyMenuEnableMethod", "My menu item", c);
 
             return true;
         }
 
         public bool DisconnectFromSW()
         {
-            Marshal.ReleaseComObject(SwApp);
-            SwApp = null;
+            Marshal.ReleaseComObject(_iSwApp);
+            _iSwApp = null;
 
             // The add-in must call GC.Collect() here in order to retrieve all managed code pointers 
             GC.Collect();
@@ -123,6 +129,21 @@ namespace AddInSpec
             GC.WaitForPendingFinalizers();
 
             return true;
+        }
+
+        public void MyMenuCallback()
+        {
+            var exporter = new AssemblyExporter();
+
+            var attributes = new[]
+            {
+                "Обозначение", "Наименование", "Раздел",
+                "Код документа", "Контора", "Масса",
+                "Разработал", "Проверил"
+            };
+
+            exporter.ExportAssembly(attributes, @"C:\Temp\assembly.json");
+            _iSwApp.SendMsgToUser("Complete");
         }
     }
 }
