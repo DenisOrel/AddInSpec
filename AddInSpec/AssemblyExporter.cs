@@ -43,15 +43,6 @@ namespace AddInSpec
                     configurations.Add(configInfo);
                 }
 
-                //var assemblyInfo = new Assembly
-                //{
-                //    Configuration = configurationName,
-                //    Filename = fileName,
-                //    Properties = GetCustomProperties(model, attributes),
-                //    Components = TraverseTopLevelComponents((AssemblyDoc)model, attributes)
-                //};
-
-                //var root = new Root { Assembly = assemblyInfo };
                 var root = new Root
                 {
                     Assembly = new Assembly
@@ -88,13 +79,7 @@ namespace AddInSpec
             {
                 if (comp.GetSuppression2() == (int)swComponentSuppressionState_e.swComponentLightweight)
                 {
-                    //_swApp.SendMsgToUser(comp.Name + " - swComponentLightweight");
                     var rest = comp.SetSuppression2((int)swComponentSuppressionState_e.swComponentResolved);
-                    //_swApp.SendMsgToUser2(
-                    //    $"Component: {comp.Name2} → SetSuppression2 result: {rest}",
-                    //    (int)swMessageBoxIcon_e.swMbInformation,
-                    //    (int)swMessageBoxBtn_e.swMbOk
-                    //);
                 }
 
                 if (comp.IsSuppressed()) continue;
