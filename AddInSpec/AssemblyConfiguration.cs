@@ -2,11 +2,10 @@
 
 namespace AddInSpec
 {
-    public class Component
+    public class AssemblyConfiguration
     {
         public string Configuration { get; set; }
-        public string Filename { get; set; }
-        public string Quantity { get; set; }
         public Dictionary<string, string> Properties { get; set; }
+        public List<Component> Components { get; set; }
     }
 }

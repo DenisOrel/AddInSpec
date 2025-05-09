@@ -83,6 +83,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assembly.cs" />
+    <Compile Include="AssemblyConfiguration.cs" />
     <Compile Include="AssemblyExporter.cs" />
     <Compile Include="JsonExporter.cs" />
     <Compile Include="Component.cs" />

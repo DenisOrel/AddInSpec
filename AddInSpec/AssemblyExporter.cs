@@ -20,18 +20,46 @@ namespace AddInSpec
                 if (model == null || model.GetType() != (int)swDocumentTypes_e.swDocASSEMBLY)
                     throw new InvalidDataException("Active document is not an assembly.");
 
-                var configurationName = model.ConfigurationManager.ActiveConfiguration.Name;
+                //var configurationName = model.ConfigurationManager.ActiveConfiguration.Name;
+
+                var configurations = new List<AssemblyConfiguration>();
+
+                var configNames = model.GetConfigurationNames();
+
                 var fileName = Path.GetFileName(model.GetPathName());
 
-                var assemblyInfo = new Assembly
+                foreach (string configName in configNames)
                 {
-                    Configuration = configurationName,
-                    Filename = fileName,
-                    Properties = GetCustomProperties(model, attributes),
-                    Components = TraverseTopLevelComponents((AssemblyDoc)model, attributes)
-                };
+                    model.ShowConfiguration2(configName);
+                    var assembly = (AssemblyDoc)model;
 
-                var root = new Root { Assembly = assemblyInfo };
+                    var configInfo = new AssemblyConfiguration
+                    {
+                        Configuration = configName,
+                        Properties = GetCustomProperties(model, attributes),
+                        Components = TraverseTopLevelComponents(assembly, attributes)
+                    };
+
+                    configurations.Add(configInfo);
+                }
+
+                //var assemblyInfo = new Assembly
+                //{
+                //    Configuration = configurationName,
+                //    Filename = fileName,
+                //    Properties = GetCustomProperties(model, attributes),
+                //    Components = TraverseTopLevelComponents((AssemblyDoc)model, attributes)
+                //};
+
+                //var root = new Root { Assembly = assemblyInfo };
+                var root = new Root
+                {
+                    Assembly = new Assembly
+                    {
+                        Filename = fileName,
+                        Configurations = configurations
+                    }
+                };
 
                 var json = JsonConvert.SerializeObject(root, Formatting.Indented);
 
@@ -145,7 +173,7 @@ namespace AddInSpec
                     custPropMgr.Get6(attr, false, out _, out resolvedValOut, out _, out _);
                 }
 
-                props[attr] = string.IsNullOrWhiteSpace(resolvedValOut) ? "empty" : resolvedValOut;
+                props[attr] = string.IsNullOrWhiteSpace(resolvedValOut) ? "" : resolvedValOut;
             }
 
             return props;

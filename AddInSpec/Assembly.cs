@@ -2,11 +2,9 @@
 
 namespace AddInSpec
 {
-    internal class Assembly
+    public class Assembly
     {
-        public string Configuration { get; set; }
         public string Filename { get; set; }
-        public Dictionary<string, string> Properties { get; set; }
-        public List<Component> Components { get; set; }
+        public List<AssemblyConfiguration> Configurations { get; set; }
     }
 }
